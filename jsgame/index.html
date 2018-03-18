@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="/phaser.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+            preload: preload,
+            create: create,
+            update: update
+        });
+        var space;
+        var cursors;
+        var right;
+        var text;
+        var pipe;
+        var bullets;
+        var bulletTime = 0;
+        var fireButton
+        var nextFire = 0;
+
+
+
+
+        function preload() {
+            game.load.image('space', 'assets/achtergrond.png');
+            game.load.image('pipe', 'assets/pipe.png');
+            game.load.image('bullets', 'assets/bullet.jpg')
+            game.load.spritesheet('player', 'assets/unicorn.png');
+
+        }
+
+
+
+        function create() {
+
+            space = game.add.tileSprite(0, 0, 1024, 1024, "space");
+            player = game.add.sprite(0, 48, 'player', 0);
+            player.smoothed = false;
+            player.scale.set(0.1);
+            game.physics.enable(player, Phaser.Physics.ARCADE);
+            cursors = game.input.keyboard.createCursorKeys();
+
+
+            player.body.collideWorldBounds = true;
+
+            pipe = game.add.sprite(570, 400, 'pipe');
+            game.physics.enable(pipe, Phaser.Physics.ARCADE);
+            pipe.body.velocity.x = -100;
+            
+            
+            bullets = game.add.group();
+            bullets.enableBody = true;
+            bullets.physicsBodyType = Phaser.Physics.ARCADE;
+            bullets.createMultiple(30, 'bullets');
+            bullets.setAll('anchor.x', 0.5);
+            bullets.setAll('anchor.y', 1);
+            bullets.setAll('outOfBoundsKill', true);
+            bullets.setAll('checkWorldBounds', true);
+            
+            fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            
+            
+            var stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
+            
+           
+        }
+
+
+
+
+
+
+
+        function update() {
+
+            //game.physics.arcade.overlap(player,pipe,collisionHandler,null,this)
+
+            space.tilePosition.x -= 1.5;
+
+            player.body.velocity.set(0);
+
+            if (cursors.down.isDown) {
+                player.body.velocity.y = 160;
+
+            } else if (cursors.up.isDown) {
+                player.body.velocity.y = -160;
+
+            }
+            
+            if (fireButton.isDown){
+                fireBullet();
+            }
+
+            game.physics.arcade.overlap(player,pipe,collisionHandler,null,this);
+
+
+
+
+        }
+        
+function fireBullet(){
+    if (game.time.now > bulletTime){
+        bullet = bullets.getFirstExists(false);
+        
+        if(bullet){
+            bullet.reset(player.x,player.y + 39);
+            bullet.body.velocity.x = 300;
+            bulletTime = game.time.now + 200;
+        }
+    }
+}
+        
+function collisionHandler(player,pipe){
+    pipe.kill()
+    location.reload();
+}
+        
+
+    </script>
+
+</body>
+
+</html>
